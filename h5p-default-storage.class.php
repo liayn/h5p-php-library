@@ -354,16 +354,20 @@ class H5PDefaultStorage implements H5PFileStorage
      * Used when copy pasting content in H5P Editor.
      *
      * @param string $file path + name
-     * @param string|int $fromId Content ID or 'editor' string
-     * @param int $toId Target Content ID
+     * @param string|int $fromid Content ID or 'editor' string
+     * @param int $toid Target Content ID
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
+        if (str_contains($file, './')) {
+          return; // Skip file
+        }
+
         // Determine source path
         if ($fromId === 'editor') {
-            $sourcepath = $this->getEditorPath();
+          $sourcepath = $this->getEditorPath();
         } else {
-            $sourcepath = "{$this->path}/content/{$fromId}";
+          $sourcepath = "{$this->path}/content/{$fromId}";
         }
         $sourcepath .= '/' . $file;
 
@@ -488,19 +492,17 @@ class H5PDefaultStorage implements H5PFileStorage
     /**
      * Check if upgrades script exist for library.
      *
-     * @param string $machineName
-     * @param int $majorVersion
-     * @param int $minorVersion
+     * @param array $library
      * @return string Relative path
      */
-    public function getUpgradeScript($machineName, $majorVersion, $minorVersion)
+    public function getUpgradeScript($library)
     {
-        $upgrades = "/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
-        if (file_exists($this->path . $upgrades)) {
-            return $upgrades;
-        } else {
-            return null;
-        }
+      $upgrades = '/libraries/' . \H5PCore::libraryToFolderName($library) . '/upgrades.js';
+      if (file_exists($this->path . $upgrades)) {
+        return $upgrades;
+      } else {
+        return null;
+      }
     }
 
     /**
