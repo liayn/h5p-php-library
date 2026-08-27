@@ -13,13 +13,13 @@ declare(strict_types=1);
  * Some implementations of H5P that doesn't use the standard file system will
  * want to create their own implementation of the \H5P\FileStorage interface.
  *
- * @package    H5P
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
 class H5PDefaultStorage implements H5PFileStorage
 {
-    private $path, $alteditorpath;
+    private $path;
+    private $alteditorpath;
 
     /**
      * The great Constructor!
@@ -136,27 +136,27 @@ class H5PDefaultStorage implements H5PFileStorage
         }
     }
 
-  /**
-   * Fetch library folder and save in target directory.
-   *
-   * @param array $library
-   *  Library properties
-   * @param string $target
-   *  Where the library folder will be saved
-   * @param string $developmentPath
-   *  Folder that library resides in
-   */
-  public function exportLibrary($library, $target, $developmentPath = null)
-  {
-      $srcFolder = H5PCore::libraryToFolderName($library);
-      $srcPath = ($developmentPath === null ? "/libraries/{$srcFolder}" : $developmentPath);
+    /**
+     * Fetch library folder and save in target directory.
+     *
+     * @param array $library
+     *  Library properties
+     * @param string $target
+     *  Where the library folder will be saved
+     * @param string $developmentPath
+     *  Folder that library resides in
+     */
+    public function exportLibrary($library, $target, $developmentPath = null)
+    {
+        $srcFolder = H5PCore::libraryToFolderName($library);
+        $srcPath = ($developmentPath === null ? "/libraries/{$srcFolder}" : $developmentPath);
 
-      // Library folders inside the H5P zip file shall not contain patch version in the folder name
-      $library['patchVersionInFolderName'] = false;
-      $destinationFolder = H5PCore::libraryToFolderName($library);
+        // Library folders inside the H5P zip file shall not contain patch version in the folder name
+        $library['patchVersionInFolderName'] = false;
+        $destinationFolder = H5PCore::libraryToFolderName($library);
 
-      self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$destinationFolder}");
-  }
+        self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$destinationFolder}");
+    }
 
     /**
      * Save export in file system
@@ -172,11 +172,11 @@ class H5PDefaultStorage implements H5PFileStorage
         $this->deleteExport($filename);
 
         if (!self::dirReady("{$this->path}/exports")) {
-            throw new Exception("Unable to create directory for H5P export file.");
+            throw new Exception('Unable to create directory for H5P export file.');
         }
 
         if (!copy($source, "{$this->path}/exports/{$filename}")) {
-            throw new Exception("Unable to save H5P export file.");
+            throw new Exception('Unable to save H5P export file.');
         }
     }
 
@@ -233,15 +233,15 @@ class H5PDefaultStorage implements H5PFileStorage
                 } else {
                     // Rewrite relative URLs used inside stylesheets
                     $content .= preg_replace_callback(
-                            '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
-                            function ($matches) use ($cssRelPath) {
-                                if (preg_match("/^(data:|([a-z0-9]+:)?\/)/i", $matches[1]) === 1) {
-                                    return $matches[0]; // Not relative, skip
-                                }
-                                return 'url("../' . $cssRelPath . $matches[1] . '")';
-                            },
-                            $assetContent
-                        ) . "\n";
+                        '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
+                        function ($matches) use ($cssRelPath) {
+                            if (preg_match("/^(data:|([a-z0-9]+:)?\/)/i", $matches[1]) === 1) {
+                                return $matches[0]; // Not relative, skip
+                            }
+                            return 'url("../' . $cssRelPath . $matches[1] . '")';
+                        },
+                        $assetContent
+                    ) . "\n";
                 }
             }
 
@@ -252,8 +252,8 @@ class H5PDefaultStorage implements H5PFileStorage
             $files[$type] = [
                 (object)[
                     'path' => $outputfile,
-                    'version' => ''
-                ]
+                    'version' => '',
+                ],
             ];
         }
     }
@@ -274,8 +274,8 @@ class H5PDefaultStorage implements H5PFileStorage
             $files['scripts'] = [
                 (object)[
                     'path' => $js,
-                    'version' => ''
-                ]
+                    'version' => '',
+                ],
             ];
         }
 
@@ -284,8 +284,8 @@ class H5PDefaultStorage implements H5PFileStorage
             $files['styles'] = [
                 (object)[
                     'path' => $css,
-                    'version' => ''
-                ]
+                    'version' => '',
+                ],
             ];
         }
 
@@ -354,20 +354,20 @@ class H5PDefaultStorage implements H5PFileStorage
      * Used when copy pasting content in H5P Editor.
      *
      * @param string $file path + name
-     * @param string|int $fromid Content ID or 'editor' string
-     * @param int $toid Target Content ID
+     * @param string|int $fromId Content ID or 'editor' string
+     * @param int $toId Target Content ID
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
         if (str_contains($file, './')) {
-          return; // Skip file
+            return; // Skip file
         }
 
         // Determine source path
         if ($fromId === 'editor') {
-          $sourcepath = $this->getEditorPath();
+            $sourcepath = $this->getEditorPath();
         } else {
-          $sourcepath = "{$this->path}/content/{$fromId}";
+            $sourcepath = "{$this->path}/content/{$fromId}";
         }
         $sourcepath .= '/' . $file;
 
@@ -497,12 +497,12 @@ class H5PDefaultStorage implements H5PFileStorage
      */
     public function getUpgradeScript($library)
     {
-      $upgrades = '/libraries/' . \H5PCore::libraryToFolderName($library) . '/upgrades.js';
-      if (file_exists($this->path . $upgrades)) {
-        return $upgrades;
-      } else {
+        $upgrades = '/libraries/' . H5PCore::libraryToFolderName($library) . '/upgrades.js';
+        if (file_exists($this->path . $upgrades)) {
+            return $upgrades;
+        }
         return null;
-      }
+
     }
 
     /**
@@ -533,7 +533,6 @@ class H5PDefaultStorage implements H5PFileStorage
      *  From path
      * @param string $destination
      *  To path
-     * @return void
      *
      * @throws Exception Unable to copy the file
      */
@@ -553,9 +552,9 @@ class H5PDefaultStorage implements H5PFileStorage
 
         while (false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore' && !in_array(
-                    $file,
-                    $ignoredFiles
-                )) {
+                $file,
+                $ignoredFiles
+            )) {
                 if (is_dir("{$source}/{$file}")) {
                     self::copyFileTree("{$source}/{$file}", "{$destination}/{$file}");
                 } else {
@@ -601,7 +600,7 @@ class H5PDefaultStorage implements H5PFileStorage
                 return false;
             }
 
-            mkdir($path, 0777, true);
+            mkdir($path, 0o777, true);
         }
 
         if (!is_dir($path)) {
@@ -624,6 +623,6 @@ class H5PDefaultStorage implements H5PFileStorage
      */
     private function getEditorPath()
     {
-        return ($this->alteditorpath !== null ? $this->alteditorpath : "{$this->path}/editor");
+        return $this->alteditorpath !== null ? $this->alteditorpath : "{$this->path}/editor";
     }
 }

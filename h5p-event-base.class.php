@@ -5,7 +5,6 @@ declare(strict_types=1);
 /**
  * The base class for H5P events. Extend to track H5P events in your system.
  *
- * @package    H5P
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
@@ -21,7 +20,14 @@ abstract class H5PEventBase
     public static $log_time = 2592000; // 30 Days
 
     // Protected variables
-    protected $id, $type, $sub_type, $content_id, $content_title, $library_name, $library_version, $time;
+    protected $id;
+    protected $type;
+    protected $sub_type;
+    protected $content_id;
+    protected $content_title;
+    protected $library_name;
+    protected $library_version;
+    protected $time;
 
     /**
      * Adds event type, h5p library and timestamp to event before saving it.
@@ -121,11 +127,12 @@ abstract class H5PEventBase
      */
     private static function validStats($type, $sub_type)
     {
-        if (($type === 'content' && $sub_type === 'shortcode insert') || // Count number of shortcode inserts
-            ($type === 'library' && $sub_type === null) || // Count number of times library is loaded in editor
-            ($type === 'results' && $sub_type === 'content')) { // Count number of times results page has been opened
+        if (($type === 'content' && $sub_type === 'shortcode insert') // Count number of shortcode inserts
+            || ($type === 'library' && $sub_type === null) // Count number of times library is loaded in editor
+            || ($type === 'results' && $sub_type === 'content')) { // Count number of times results page has been opened
             return true;
-        } elseif (self::isAction($type, $sub_type)) { // Count all actions
+        }
+        if (self::isAction($type, $sub_type)) { // Count all actions
             return true;
         }
         return false;
@@ -143,10 +150,10 @@ abstract class H5PEventBase
     private static function isAction($type, $sub_type)
     {
         if (($type === 'content' && in_array(
-                    $sub_type,
-                    ['create', 'create upload', 'update', 'update upload', 'upgrade', 'delete']
-                )) ||
-            ($type === 'library' && in_array($sub_type, ['create', 'update']))) {
+            $sub_type,
+            ['create', 'create upload', 'update', 'update upload', 'upgrade', 'delete']
+        ))
+            || ($type === 'library' && in_array($sub_type, ['create', 'update']))) {
             return true; // Log actions
         }
         return false;
@@ -169,7 +176,7 @@ abstract class H5PEventBase
             'content_id' => empty($this->content_id) ? 0 : $this->content_id,
             'content_title' => empty($this->content_title) ? '' : $this->content_title,
             'library_name' => empty($this->library_name) ? '' : $this->library_name,
-            'library_version' => empty($this->library_version) ? '' : $this->library_version
+            'library_version' => empty($this->library_version) ? '' : $this->library_version,
         ];
     }
 
@@ -188,7 +195,7 @@ abstract class H5PEventBase
             '%d',
             '%s',
             '%s',
-            '%s'
+            '%s',
         ];
     }
 
